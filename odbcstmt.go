@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"log"
 	"unsafe"
 
 	"github.com/christophetrinh/odbc/api"
