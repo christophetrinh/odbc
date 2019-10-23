@@ -111,16 +111,18 @@ func (s *ODBCStmt) releaseHandle() error {
 var testingIssue5 bool // used during tests
 
 func (s *ODBCStmt) Exec(args []driver.Value, conn *Conn) error {
-	log.Print("PRINT")
 	if len(args) != len(s.Parameters) {
 		return fmt.Errorf("wrong number of arguments %d, %d expected", len(args), len(s.Parameters))
 	}
 
-	err := conn.setTimeoutAttr(uintptr(10))
-	if err != nil {
-		log.Printf("%v", err)
-		conn.bad = true
-		return err
+	// check if conn.queryTimeout > 0
+	if conn.queryTimeout > 0 {
+		err := conn.setTimeoutAttr(uintptr(conn.queryTimeout))
+		if err != nil {
+			log.Printf("%v", err)
+			conn.bad = true
+			return err
+		}
 	}
 	for i, a := range args {
 		// this could be done in 2 steps:

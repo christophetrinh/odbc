@@ -29,7 +29,6 @@ func (c *Conn) setAutoCommitAttr(a uintptr) error {
 	return nil
 }
 
-
 func (c *Conn) Begin() (driver.Tx, error) {
 	if c.bad {
 		return nil, driver.ErrBadConn
