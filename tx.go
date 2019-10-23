@@ -29,16 +29,6 @@ func (c *Conn) setAutoCommitAttr(a uintptr) error {
 	return nil
 }
 
-func (c *Conn) setTimeoutAttr(a uintptr) error {
-	if testBeginErr != nil {
-		return testBeginErr
-	}
-	ret := api.SQLSetConnectUIntPtrAttr(c.h, api.SQL_ATTR_QUERY_TIMEOUT, a, api.SQL_IS_UINTEGER)
-	if IsError(ret) {
-		return c.newError("SQLSetConnectUIntPtrAttr", c.h)
-	}
-	return nil
-}
 
 func (c *Conn) Begin() (driver.Tx, error) {
 	if c.bad {
