@@ -7,6 +7,7 @@ package odbc
 import (
 	"database/sql/driver"
 	"errors"
+	"log"
 
 	"github.com/christophetrinh/odbc/api"
 )
