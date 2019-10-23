@@ -8,9 +8,9 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"log"
 	"sync"
 	"time"
-	"log"
 	"unsafe"
 
 	"github.com/christophetrinh/odbc/api"
@@ -28,13 +28,10 @@ type ODBCStmt struct {
 	usedByRows bool
 }
 
-
 func (c *Conn) setTimeoutAttr(a uintptr) error {
 	if testBeginErr != nil {
 		return testBeginErr
 	}
-	log.Printf("a: %v", a)
-	log.Printf("querytimeout: %v", api.SQL_ATTR_QUERY_TIMEOUT)
 	ret := api.SQLSetConnectUIntPtrAttr(c.h, api.SQL_ATTR_QUERY_TIMEOUT, a, api.SQL_IS_UINTEGER)
 	if IsError(ret) {
 		return c.newError("SQLSetConnectUIntPtrAttr", c.h)
