@@ -114,10 +114,10 @@ func (s *ODBCStmt) Exec(args []driver.Value, conn *Conn) error {
 		return fmt.Errorf("wrong number of arguments %d, %d expected", len(args), len(s.Parameters))
 	}
 
-	err := c.setTimeoutAttr(uintptr(10))
+	err := conn.setTimeoutAttr(uintptr(10))
 	if err != nil {
 		log.Printf("%v", err)
-		c.bad = true
+		conn.bad = true
 		return err
 	}
 	for i, a := range args {
