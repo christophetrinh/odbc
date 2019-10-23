@@ -28,6 +28,18 @@ type ODBCStmt struct {
 	usedByRows bool
 }
 
+
+func (c *Conn) setTimeoutAttr(a uintptr) error {
+	if testBeginErr != nil {
+		return testBeginErr
+	}
+	ret := api.SQLSetConnectUIntPtrAttr(c.h, api.SQL_ATTR_QUERY_TIMEOUT, a, api.SQL_IS_UINTEGER)
+	if IsError(ret) {
+		return c.newError("SQLSetConnectUIntPtrAttr", c.h)
+	}
+	return nil
+}
+
 func (c *Conn) PrepareODBCStmt(query string) (*ODBCStmt, error) {
 	var out api.SQLHANDLE
 	ret := api.SQLAllocHandle(api.SQL_HANDLE_STMT, api.SQLHANDLE(c.h), &out)
@@ -100,6 +112,13 @@ func (s *ODBCStmt) Exec(args []driver.Value, conn *Conn) error {
 	log.Print("PRINT")
 	if len(args) != len(s.Parameters) {
 		return fmt.Errorf("wrong number of arguments %d, %d expected", len(args), len(s.Parameters))
+	}
+
+	err = c.setTimeoutAttr(uintptr(10))
+	if err != nil {
+		log.Printf("%v", err)
+		c.bad = true
+		return nil, err
 	}
 	for i, a := range args {
 		// this could be done in 2 steps:
