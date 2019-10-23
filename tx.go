@@ -52,8 +52,9 @@ func (c *Conn) Begin() (driver.Tx, error) {
 		c.bad = true
 		return nil, err
 	}
-	err := c.setTimeoutAttr(uintptr(10))
+	err = c.setTimeoutAttr(uintptr(10))
 	if err != nil {
+		log.Infof("%v", err)
 		c.bad = true
 		return nil, err
 	}
