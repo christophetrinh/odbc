@@ -118,7 +118,7 @@ func (s *ODBCStmt) Exec(args []driver.Value, conn *Conn) error {
 	if err != nil {
 		log.Printf("%v", err)
 		c.bad = true
-		return nil, err
+		return err
 	}
 	for i, a := range args {
 		// this could be done in 2 steps:
