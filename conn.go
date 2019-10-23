@@ -6,6 +6,8 @@ package odbc
 
 import (
 	"database/sql/driver"
+	"regexp"
+	"strconv"
 	"strings"
 	"unsafe"
 
@@ -24,12 +26,10 @@ var accessDriverSubstr = strings.ToUpper(strings.Replace("DRIVER={Microsoft Acce
 
 func (d *Driver) Open(dsn string) (driver.Conn, error) {
 	re := regexp.MustCompile(`QUERYTIMEOUT=([0-9]+)`)
-	matchTimeout := re.FindStringSubmatch(connString)
+	matchTimeout := re.FindStringSubmatch(dsn)
+	queryTimeout := 0
 	if len(matchTimeout) > 1 {
-		queryTimeout, err := strconv.Atoi(matchTimeout[1])
-		if err != nil {
-			return nil, NewError("SQLTimeout", d.h)
-		}
+		queryTimeout, _ = strconv.Atoi(matchTimeout[1])
 	}
 
 	var out api.SQLHANDLE
