@@ -57,13 +57,6 @@ func initDriver() error {
 		return NewError("SQLSetEnvUIntPtrAttr", drv.h)
 	}
 
-	//Set relaxed connection pool matching
-	ret = api.SQLSetEnvUIntPtrAttr(drv.h, api.SQL_ATTR_QUERY_TIMEOUT, api.SQL_TIMEOUT, api.SQL_IS_UINTEGER)
-	if IsError(ret) {
-		defer releaseHandle(drv.h)
-		return NewError("SQLSetEnvUIntPtrAttr", drv.h)
-	}
-
 	//TODO: it would be nice if we could call "drv.SetMaxIdleConns(0)" here but from the docs it looks like
 	//the user must call this function after db.Open
 
