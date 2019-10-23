@@ -8,6 +8,7 @@ package odbc
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/christophetrinh/odbc/api"
 )
@@ -20,7 +21,7 @@ type Driver struct {
 }
 
 func initDriver() error {
-
+	log.Print("PRINT HELLO")
 	//Allocate environment handle
 	var out api.SQLHANDLE
 	in := api.SQLHANDLE(api.SQL_NULL_HANDLE)
