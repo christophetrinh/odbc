@@ -1,3 +1,5 @@
-module github.com/alexbrainman/odbc
+module github.com/christophetrinh/odbc
 
-require golang.org/x/sys v0.0.0-20181011152604-fa43e7bc11ba
+go 1.12
+
+require github.com/go-ole/go-ole v1.2.4

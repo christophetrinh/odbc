@@ -9,7 +9,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/alexbrainman/odbc/api"
+	"github.com/christophetrinh/odbc/api"
 )
 
 type Stmt struct {

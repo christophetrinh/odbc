@@ -6,10 +6,12 @@ package odbc
 
 import (
 	"database/sql/driver"
+	"regexp"
+	"strconv"
 	"strings"
 	"unsafe"
 
-	"github.com/alexbrainman/odbc/api"
+	"github.com/christophetrinh/odbc/api"
 )
 
 type Conn struct {
@@ -17,16 +19,25 @@ type Conn struct {
 	tx               *Tx
 	bad              bool
 	isMSAccessDriver bool
+	queryTimeout     int
 }
 
 var accessDriverSubstr = strings.ToUpper(strings.Replace("DRIVER={Microsoft Access Driver", " ", "", -1))
 
 func (d *Driver) Open(dsn string) (driver.Conn, error) {
+	re := regexp.MustCompile(`QUERYTIMEOUT=([0-9]+)`)
+	matchTimeout := re.FindStringSubmatch(dsn)
+	queryTimeout := 0
+	if len(matchTimeout) > 1 {
+		queryTimeout, _ = strconv.Atoi(matchTimeout[1])
+	}
+
 	var out api.SQLHANDLE
 	ret := api.SQLAllocHandle(api.SQL_HANDLE_DBC, api.SQLHANDLE(d.h), &out)
 	if IsError(ret) {
 		return nil, NewError("SQLAllocHandle", d.h)
 	}
+
 	h := api.SQLHDBC(out)
 	drv.Stats.updateHandleCount(api.SQL_HANDLE_DBC, 1)
 
@@ -39,7 +50,8 @@ func (d *Driver) Open(dsn string) (driver.Conn, error) {
 		return nil, NewError("SQLDriverConnect", h)
 	}
 	isAccess := strings.Contains(strings.ToUpper(strings.Replace(dsn, " ", "", -1)), accessDriverSubstr)
-	return &Conn{h: h, isMSAccessDriver: isAccess}, nil
+
+	return &Conn{h: h, isMSAccessDriver: isAccess, queryTimeout: queryTimeout}, nil
 }
 
 func (c *Conn) Close() (err error) {

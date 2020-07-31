@@ -7,8 +7,9 @@ package odbc
 import (
 	"database/sql/driver"
 	"errors"
+	"log"
 
-	"github.com/alexbrainman/odbc/api"
+	"github.com/christophetrinh/odbc/api"
 )
 
 type Tx struct {
@@ -38,6 +39,12 @@ func (c *Conn) Begin() (driver.Tx, error) {
 	c.tx = &Tx{c: c}
 	err := c.setAutoCommitAttr(api.SQL_AUTOCOMMIT_OFF)
 	if err != nil {
+		c.bad = true
+		return nil, err
+	}
+	err = c.setTimeoutAttr(uintptr(10))
+	if err != nil {
+		log.Printf("%v", err)
 		c.bad = true
 		return nil, err
 	}

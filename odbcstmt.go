@@ -8,11 +8,12 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 	"unsafe"
 
-	"github.com/alexbrainman/odbc/api"
+	"github.com/christophetrinh/odbc/api"
 )
 
 // TODO(brainman): see if I could use SQLExecDirect anywhere
@@ -25,6 +26,17 @@ type ODBCStmt struct {
 	mu         sync.Mutex
 	usedByStmt bool
 	usedByRows bool
+}
+
+func (c *Conn) setTimeoutAttr(a uintptr) error {
+	if testBeginErr != nil {
+		return testBeginErr
+	}
+	ret := api.SQLSetConnectUIntPtrAttr(c.h, api.SQL_ATTR_QUERY_TIMEOUT, a, api.SQL_IS_UINTEGER)
+	if IsError(ret) {
+		return c.newError("SQLSetConnectUIntPtrAttr", c.h)
+	}
+	return nil
 }
 
 func (c *Conn) PrepareODBCStmt(query string) (*ODBCStmt, error) {
@@ -98,6 +110,16 @@ var testingIssue5 bool // used during tests
 func (s *ODBCStmt) Exec(args []driver.Value, conn *Conn) error {
 	if len(args) != len(s.Parameters) {
 		return fmt.Errorf("wrong number of arguments %d, %d expected", len(args), len(s.Parameters))
+	}
+
+	// check if conn.queryTimeout > 0
+	if conn.queryTimeout > 0 {
+		err := conn.setTimeoutAttr(uintptr(conn.queryTimeout))
+		if err != nil {
+			log.Printf("%v", err)
+			conn.bad = true
+			return err
+		}
 	}
 	for i, a := range args {
 		// this could be done in 2 steps:
