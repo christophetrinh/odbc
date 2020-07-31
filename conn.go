@@ -25,6 +25,8 @@ type Conn struct {
 var accessDriverSubstr = strings.ToUpper(strings.Replace("DRIVER={Microsoft Access Driver", " ", "", -1))
 
 func (d *Driver) Open(dsn string) (driver.Conn, error) {
+	if d.initErr != nil {
+		return nil, d.initErr
 	re := regexp.MustCompile(`QUERYTIMEOUT=([0-9]+)`)
 	matchTimeout := re.FindStringSubmatch(dsn)
 	queryTimeout := 0
